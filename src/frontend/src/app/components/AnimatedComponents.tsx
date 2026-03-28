@@ -32,7 +32,7 @@ interface GradientTextProps {
 export function GradientText({ children, className = "", animate = false }: GradientTextProps) {
   return (
     <span
-      className={`bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent ${
+      className={`bg-linear-to-r from-primary via-secondary to-primary bg-clip-text text-transparent ${
         animate ? "animate-gradient" : ""
       } ${className}`}
     >
@@ -69,7 +69,7 @@ export function ShineButton({ children, className = "", onClick }: ShineButtonPr
       onClick={onClick}
     >
       <motion.div
-        className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
+        className="absolute inset-0 bg-linear-to-r from-transparent via-white/20 to-transparent"
         initial={{ x: "-100%" }}
         whileHover={{ x: "100%" }}
         transition={{ duration: 0.6 }}
@@ -127,7 +127,7 @@ export function GlowCard({ children, className = "", glowColor = "primary" }: Gl
       transition={{ duration: 0.3 }}
     >
       <div
-        className={`absolute -inset-0.5 bg-gradient-to-r from-${glowColor} to-secondary rounded-2xl opacity-0 group-hover:opacity-75 blur transition duration-300`}
+        className={`absolute -inset-0.5 bg-linear-to-r from-${glowColor} to-secondary rounded-2xl opacity-0 group-hover:opacity-75 blur transition duration-300`}
       />
       <div className="relative">{children}</div>
     </motion.div>
@@ -228,7 +228,7 @@ export function RotatingBorder({ children, className = "" }: RotatingBorderProps
           ease: "linear",
         }}
       />
-      <div className="relative bg-background rounded-2xl m-[2px]">{children}</div>
+      <div className="relative bg-background rounded-2xl m-0.5">{children}</div>
     </div>
   );
 }

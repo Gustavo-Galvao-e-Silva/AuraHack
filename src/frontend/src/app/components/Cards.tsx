@@ -21,9 +21,9 @@ export function StatCard({ icon: Icon, value, label, delay = 0, prefix = "", suf
       whileHover={{ scale: 1.05, y: -5 }}
       className="relative group"
     >
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-secondary/20 rounded-2xl opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
+      <div className="absolute inset-0 bg-linear-to-br from-primary/20 to-secondary/20 rounded-2xl opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-300" />
       <div className="relative bg-card/80 backdrop-blur-sm border border-border rounded-2xl p-6 text-center">
-        <div className="inline-flex items-center justify-center w-14 h-14 rounded-xl bg-gradient-to-br from-primary/10 to-secondary/10 mb-4 group-hover:scale-110 transition-transform duration-300">
+        <div className="inline-flex items-center justify-center w-14 h-14 rounded-xl bg-linear-to-br from-primary/10 to-secondary/10 mb-4 group-hover:scale-110 transition-transform duration-300">
           <Icon className="w-7 h-7 text-primary" />
         </div>
         <div className="text-3xl font-bold text-foreground mb-1">
@@ -58,14 +58,14 @@ export function FeatureCard({ icon: Icon, title, description, delay = 0 }: Featu
       whileHover={{ y: -5, scale: 1.02 }}
       className="group"
     >
-      <div className="relative h-full p-6 rounded-2xl bg-gradient-to-br from-card to-card/50 border border-border backdrop-blur-sm hover:shadow-2xl transition-all duration-300 overflow-hidden">
+      <div className="relative h-full p-6 rounded-2xl bg-linear-to-br from-card to-card/50 border border-border backdrop-blur-sm hover:shadow-2xl transition-all duration-300 overflow-hidden">
         {/* Animated gradient background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-secondary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+        <div className="absolute inset-0 bg-linear-to-br from-primary/5 to-secondary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
         
         {/* Content */}
         <div className="relative z-10">
           <motion.div
-            className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-primary/20 to-secondary/20 mb-4"
+            className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-linear-to-br from-primary/20 to-secondary/20 mb-4"
             whileHover={{ rotate: [0, -10, 10, -10, 0] }}
             transition={{ duration: 0.5 }}
           >
@@ -79,7 +79,7 @@ export function FeatureCard({ icon: Icon, title, description, delay = 0 }: Featu
         </div>
 
         {/* Decorative element */}
-        <div className="absolute -bottom-2 -right-2 w-24 h-24 bg-gradient-to-br from-primary/10 to-secondary/10 rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+        <div className="absolute -bottom-2 -right-2 w-24 h-24 bg-linear-to-br from-primary/10 to-secondary/10 rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
       </div>
     </motion.div>
   );
@@ -115,7 +115,7 @@ export function TestimonialCard({ quote, author, role, avatar, delay = 0 }: Test
           {avatar ? (
             <img src={avatar} alt={author} className="w-12 h-12 rounded-full object-cover" />
           ) : (
-            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-primary-foreground font-bold">
+            <div className="w-12 h-12 rounded-full bg-linear-to-br from-primary to-secondary flex items-center justify-center text-primary-foreground font-bold">
               {author.charAt(0)}
             </div>
           )}
@@ -126,7 +126,7 @@ export function TestimonialCard({ quote, author, role, avatar, delay = 0 }: Test
         </div>
 
         {/* Glow effect */}
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-secondary/5 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10" />
+        <div className="absolute inset-0 bg-linear-to-br from-primary/5 to-secondary/5 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10" />
       </div>
     </motion.div>
   );
@@ -156,7 +156,7 @@ export function ProcessStep({ step, title, description, delay = 0, isLast = fals
           whileHover={{ scale: 1.1, rotate: 360 }}
           transition={{ duration: 0.6 }}
         >
-          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-secondary text-primary-foreground flex items-center justify-center text-2xl font-bold shadow-lg z-10 relative">
+          <div className="w-16 h-16 rounded-2xl bg-linear-to-br from-primary to-secondary text-primary-foreground flex items-center justify-center text-2xl font-bold shadow-lg z-10 relative">
             {step}
           </div>
           {/* Connecting line */}

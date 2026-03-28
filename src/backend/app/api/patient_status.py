@@ -19,6 +19,9 @@ def create_patient_status(
 
     patient_status = PatientStatus(
         user_id=payload.user_id,
+        sex=payload.sex,
+        location=payload.location,
+        age=payload.age,
         description=payload.description,
         history=payload.history,
         medical_notes=payload.medical_notes,

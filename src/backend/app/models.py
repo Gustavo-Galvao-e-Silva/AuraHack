@@ -112,6 +112,10 @@ class PatientStatus(Base):
         index=True,
     )
 
+    sex: Mapped[str | None] = mapped_column(String(50), nullable=True)
+    location: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    age: Mapped[int | None] = mapped_column(nullable=True)
+
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
     history: Mapped[str | None] = mapped_column(Text, nullable=True)
     medical_notes: Mapped[str | None] = mapped_column(Text, nullable=True)

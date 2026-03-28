@@ -1,6 +1,9 @@
-from datetime import datetime
+from datetime import date, datetime
 from pydantic import BaseModel, EmailStr, ConfigDict
+from app.database import engine, Base
+import app.models
 
+Base.metadata.create_all(bind=engine)
 
 class PaperCreate(BaseModel):
     title: str

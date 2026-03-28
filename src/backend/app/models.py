@@ -1,12 +1,8 @@
 from datetime import datetime, date
 from sqlalchemy import String, Text, Date, DateTime, ForeignKey
 from sqlalchemy.dialects.postgresql import JSONB
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from .database import Base
-
-
-class Base(DeclarativeBase):
-    pass
 
 
 class User(Base):
@@ -24,6 +20,15 @@ class User(Base):
         back_populates="user",
         cascade="all, delete-orphan",
     )
+    doctor_profile: Mapped["DoctorProfile | None"] = relationship(
+        back_populates="user",
+        uselist=False,
+    )
+    researcher_profile: Mapped["Researcher | None"] = relationship(
+        back_populates="user",
+        uselist=False,
+    )
+
 
 class DoctorProfile(Base):
     __tablename__ = "doctor_profiles"
@@ -69,6 +74,9 @@ class Researcher(Base):
     research_papers: Mapped[list["ResearchPaper"]] = relationship(
         back_populates="researcher",
         cascade="all, delete-orphan",
+    )
+    research_studies: Mapped[list["ResearchStudy"]] = relationship(
+        back_populates="researcher",
     )
 
 

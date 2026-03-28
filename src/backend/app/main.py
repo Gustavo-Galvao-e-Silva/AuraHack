@@ -1,8 +1,8 @@
 from fastapi import FastAPI
 
 from app.database import Base, engine
-from app.routes.webhooks import router as webhook_router
-from app.routes.patient_status import router as patient_status_router
+from app.webhooks import router as webhook_router
+from app.api.patient_status import router as patient_status_router
 
 app = FastAPI()
 

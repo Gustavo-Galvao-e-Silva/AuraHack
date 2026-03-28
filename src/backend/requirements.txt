@@ -12,3 +12,4 @@ openai
 svix
 svix
 python-dotenv
+pgvector

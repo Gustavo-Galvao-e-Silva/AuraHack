@@ -147,6 +147,9 @@ class ResearcherOut(BaseModel):
 
 class PatientStatusCreate(BaseModel):
     user_id: int
+    sex: str | None = None
+    location: str | None = None
+    age: int | None = None
     description: str | None = None
     history: str | None = None
     medical_notes: str | None = None
@@ -161,6 +164,9 @@ class PatientStatusOut(BaseModel):
 
     id: int
     user_id: int
+    sex: str | None
+    location: str | None
+    age: int | None
     description: str | None
     history: str | None
     medical_notes: str | None
@@ -168,3 +174,4 @@ class PatientStatusOut(BaseModel):
     conditions: list[str]
     drugs: list[str]
     symptoms: list[str]
+    created_at: datetime

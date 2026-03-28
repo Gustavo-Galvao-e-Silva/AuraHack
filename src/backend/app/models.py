@@ -3,6 +3,7 @@ from datetime import datetime, date
 from sqlalchemy import String, Text, Date, DateTime, ForeignKey
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+from pgvector.sqlalchemy import Vector
 
 from .database import Base
 
@@ -119,6 +120,11 @@ class PatientStatus(Base):
     conditions: Mapped[list[str]] = mapped_column(JSONB, default=list)
     drugs: Mapped[list[str]] = mapped_column(JSONB, default=list)
     symptoms: Mapped[list[str]] = mapped_column(JSONB, default=list)
+
+    patient_vector_summary: Mapped[list[float] | None] = mapped_column(
+        Vector(1536),
+        nullable=True,
+    )
 
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
 

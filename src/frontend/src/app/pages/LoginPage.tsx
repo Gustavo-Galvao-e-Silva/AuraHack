@@ -38,7 +38,7 @@ function MockLoginForm() {
         initial={{ scale: 0.9, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ duration: 0.5 }}
-        className="bg-gradient-to-r from-primary/10 to-secondary/10 border-2 border-primary/20 rounded-xl p-4 backdrop-blur-sm"
+        className="bg-linear-to-r from-primary/10 to-secondary/10 border-2 border-primary/20 rounded-xl p-4 backdrop-blur-sm"
       >
         <div className="flex items-center gap-2 mb-2">
           <Sparkles className="w-5 h-5 text-primary" />
@@ -274,7 +274,7 @@ export default function LoginPage() {
     <div className="min-h-screen flex flex-col bg-background relative overflow-hidden">
       {/* Animated Background */}
       <div className="fixed inset-0 -z-10">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-secondary/5" />
+        <div className="absolute inset-0 bg-linear-to-br from-primary/5 via-background to-secondary/5" />
         <div className="absolute inset-0">
           {[...Array(15)].map((_, i) => (
             <MotionDiv
@@ -310,13 +310,13 @@ export default function LoginPage() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
             <Link to="/" className="flex items-center gap-2 group">
               <motion.div
-                className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary to-secondary flex items-center justify-center shadow-lg"
+                className="w-10 h-10 rounded-lg bg-linear-to-br from-primary to-secondary flex items-center justify-center shadow-lg"
                 whileHover={{ rotate: 360, scale: 1.1 }}
                 transition={{ duration: 0.6 }}
               >
                 <FlaskConical className="w-6 h-6 text-primary-foreground" />
               </motion.div>
-              <span className="text-xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+              <span className="text-xl font-bold bg-linear-to-r from-primary to-secondary bg-clip-text text-transparent">
                 TrialMatch
               </span>
             </Link>

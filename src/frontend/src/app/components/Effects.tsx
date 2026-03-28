@@ -188,7 +188,7 @@ export function ScrollProgress({ className = "" }: ScrollProgressProps) {
 
   return (
     <motion.div
-      className={`fixed top-0 left-0 h-1 bg-gradient-to-r from-primary to-secondary z-50 ${className}`}
+      className={`fixed top-0 left-0 h-1 bg-linear-to-r from-primary to-secondary z-50 ${className}`}
       style={{ width: `${scrollProgress}%` }}
       initial={{ scaleX: 0 }}
       animate={{ scaleX: 1 }}
@@ -207,7 +207,7 @@ export function ShimmerText({ children, className = "" }: ShimmerTextProps) {
     <span className={`relative inline-block ${className}`}>
       <span className="relative z-10">{children}</span>
       <motion.span
-        className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent"
+        className="absolute inset-0 bg-linear-to-r from-transparent via-white/30 to-transparent"
         initial={{ x: "-100%" }}
         animate={{ x: "100%" }}
         transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
@@ -263,7 +263,7 @@ interface BeamProps {
 export function Beam({ className = "", duration = 3, delay = 0 }: BeamProps) {
   return (
     <motion.div
-      className={`absolute h-0.5 bg-gradient-to-r from-transparent via-primary to-transparent ${className}`}
+      className={`absolute h-0.5 bg-linear-to-r from-transparent via-primary to-transparent ${className}`}
       initial={{ width: 0, opacity: 0 }}
       animate={{ width: "100%", opacity: [0, 1, 0] }}
       transition={{

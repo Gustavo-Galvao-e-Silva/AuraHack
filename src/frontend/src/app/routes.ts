@@ -3,6 +3,7 @@ import LandingPage from "./pages/LandingPage";
 import LoginPage from "./pages/LoginPage";
 import Dashboard from "./pages/Dashboard";
 import AuthTestPage from "./pages/AuthTestPage";
+import SignUpPage from "./pages/SignUp";
 
 export const router = createBrowserRouter([
   {
@@ -12,6 +13,10 @@ export const router = createBrowserRouter([
   {
     path: "/login",
     Component: LoginPage,
+  },
+  {
+    path: "/sign-up",
+    Component: SignUpPage,
   },
   {
     path: "/dashboard",

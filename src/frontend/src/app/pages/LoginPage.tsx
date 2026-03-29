@@ -256,7 +256,7 @@ function ClerkLoginForm() {
           }}
           routing="path"
           path="/login"
-          signUpUrl="/login"
+          signUpUrl="/sign-up"
         />
       </MotionDiv>
 

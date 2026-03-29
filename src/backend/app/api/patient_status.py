@@ -5,7 +5,8 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models import User, PatientStatus
 from app.schemas import PatientStatusCreate, UserOut
-from backend.data import embedder
+from data import embedder
+
 
 router = APIRouter(prefix="/patient-status", tags=["patient-statuses"])
 
@@ -15,7 +16,7 @@ def update_patient_medical_info(
     payload: PatientStatusCreate,
     db: Session = Depends(get_db),
 ):
-    # 1. Buscar o usuário pelo Clerk ID
+    print(f"SADASDASDAS + {payload.clerk_user_id}")
     user = db.execute(
         select(User).where(User.clerk_user_id == payload.clerk_user_id)
     ).scalars().first()
@@ -60,7 +61,7 @@ def update_patient_medical_info(
     patient_status.symptoms = payload.symptoms
 
     emb = embedder.get_embedder()
-    embedding = emb.embed(patient_status)
+    embedding = emb.embed(patient_status.medical_summary or "")
 
     patient_status.patient_vector_summary = embedding
     db.commit()

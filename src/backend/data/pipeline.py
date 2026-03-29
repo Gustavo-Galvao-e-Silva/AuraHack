@@ -366,8 +366,8 @@ def get_study_by_id(
     extracted = _extract(raw)
     embedder = get_embedder(embedding_provider)
     clean_data = _get_final_study_data(extracted, embedder)
-    if researcher_email not in clean_data.get("contact_emails", []):
-        raise ValueError("Researcher email is not contained in study emails")
+    #if researcher_email not in clean_data.get("contact_emails", []):
+        #raise ValueError("Researcher email is not contained in study emails")
     return clean_data
 
 

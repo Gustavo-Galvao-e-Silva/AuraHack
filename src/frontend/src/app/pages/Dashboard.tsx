@@ -11,10 +11,10 @@ export default function Dashboard() {
       <header className="border-b border-border bg-card/50 backdrop-blur-xl sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-secondary flex items-center justify-center shadow-lg">
+            <div className="w-8 h-8 rounded-lg bg-linear-to-br from-primary to-secondary flex items-center justify-center shadow-lg">
               <FlaskConical className="w-5 h-5 text-primary-foreground" />
             </div>
-            <span className="text-xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+            <span className="text-xl font-bold bg-linear-to-r from-primary to-secondary bg-clip-text text-transparent">
               TrialMatch
             </span>
           </div>
@@ -54,7 +54,7 @@ export default function Dashboard() {
             <motion.div 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="glass p-8 rounded-2xl min-h-[400px]"
+              className="glass p-8 rounded-2xl min-h-100"
             >
               <h1 className="text-3xl font-bold mb-4">Welcome back, {user?.firstName}!</h1>
               <p className="text-muted-foreground mb-8">

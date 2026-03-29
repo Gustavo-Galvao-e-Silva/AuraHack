@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useUser } from "@clerk/clerk-react";
 
 type Message = {
   id: number;
@@ -35,6 +36,7 @@ type ReportResponse = {
 
 export default function ChatBotPage() {
   const navigate = useNavigate();
+  const { user } = useUser();
 
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -148,6 +150,37 @@ export default function ChatBotPage() {
           "Report generated, but no status message was returned.";
 
         setUserStatus(finalUserStatus);
+
+        if (!user?.id) {
+          throw new Error("Missing Clerk user ID.");
+        }
+
+        const patientStatusResponse = await fetch(
+          "http://localhost:8000/patient-status/",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              clerk_user_id: user.id,
+              age: null,
+              sex: null,
+              location: null,
+              description: finalUserStatus,
+              history: updatedState.last_patient_message,
+              medical_notes: "",
+              medical_summary: updatedState.patient_summary.findings_summary,
+              conditions: [],
+              drugs: [],
+              symptoms: [],
+            }),
+          }
+        );
+
+        if (!patientStatusResponse.ok) {
+          throw new Error("Failed to save patient status.");
+        }
 
         navigate("/patient", {
           state: {

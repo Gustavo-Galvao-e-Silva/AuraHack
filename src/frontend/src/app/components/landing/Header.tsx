@@ -1,10 +1,14 @@
 import { motion } from "motion/react";
-import { FlaskConical } from "lucide-react";
+import { FlaskConical, LayoutDashboard } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "../ui/button";
-import { SignedIn, SignedOut, UserButton } from "@clerk/clerk-react";
+import { SignedIn, SignedOut, UserButton, useUser } from "@clerk/clerk-react";
 
 export function Header() {
+  const { user } = useUser();
+  const role = (user?.unsafeMetadata?.role as string) || "patient";
+  const dashboardPath = role === "researcher" ? "/researcher" : role === "doctor" ? "/doctor" : "/patient";
+
   return (
     <>
     <motion.header
@@ -59,17 +63,19 @@ export function Header() {
 
           <SignedIn>
             <div className="flex items-center gap-4 border-l border-border pl-4">
-              <div className="flex flex-col items-end">
-                <span className="text-[9px] text-primary font-black uppercase tracking-tighter">System Active</span>
-                <span className="text-[8px] text-muted-foreground uppercase font-bold tracking-tight">Node_042</span>
-              </div>
-              <UserButton 
+              <Button asChild size="sm" className="gap-2 h-9 text-[10px] font-black uppercase tracking-widest rounded-full px-4 shadow-lg shadow-primary/20">
+                <Link to={dashboardPath}>
+                  <LayoutDashboard className="w-3.5 h-3.5" />
+                  Dashboard
+                </Link>
+              </Button>
+              <UserButton
                 appearance={{
                   elements: {
                     userButtonAvatarBox: "w-9 h-9 border-2 border-primary/20 hover:border-primary transition-colors"
                   }
                 }}
-                afterSignOutUrl="/" 
+                afterSignOutUrl="/"
               />
             </div>
           </SignedIn>

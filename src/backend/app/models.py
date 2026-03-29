@@ -1,6 +1,6 @@
 from datetime import datetime, date
 
-from sqlalchemy import String, Text, Date, DateTime, ForeignKey
+from sqlalchemy import Column, String, Text, Date, DateTime, ForeignKey
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from pgvector.sqlalchemy import Vector
@@ -174,3 +174,10 @@ class ResearchStudy(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
 
     researcher: Mapped["Researcher | None"] = relationship(back_populates="research_studies")
+
+
+class SessionEnvironment(Base):
+    __tablename__ = "session_environments"
+
+    session_id = Column(String, primary_key=True, index=True)
+    environment = Column(JSONB, nullable=False)

@@ -7,6 +7,7 @@ from svix.webhooks import Webhook, WebhookVerificationError
 
 from app.database import get_db
 from app.models import User
+from starlette.requests import ClientDisconnect
 
 router = APIRouter(prefix="/webhooks", tags=["webhooks"])
 
@@ -112,6 +113,8 @@ def _delete_user_from_clerk(db: Session, data: dict) -> bool:
     return True
 
 
+from starlette.requests import ClientDisconnect
+
 @router.post("/clerk")
 async def clerk_webhook(request: Request, db: Session = Depends(get_db)):
     clerk_webhook_secret = os.getenv("CLERK_WEBHOOK_SECRET")
@@ -122,7 +125,13 @@ async def clerk_webhook(request: Request, db: Session = Depends(get_db)):
             detail="CLERK_WEBHOOK_SECRET is not configured",
         )
 
-    payload_bytes = await request.body()
+    try:
+        payload_bytes = await request.body()
+    except ClientDisconnect:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Client disconnected before request body was fully received",
+        )
 
     svix_id = request.headers.get("svix-id")
     svix_timestamp = request.headers.get("svix-timestamp")

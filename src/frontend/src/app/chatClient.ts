@@ -25,8 +25,8 @@ export type ChatSocketEvent =
       message: string;
     };
 
-const CHAT_HTTP_BASE_URL = "http://44.223.29.123:6000";
-const CHAT_WS_BASE_URL   = "ws://44.223.29.123:6000";
+const CHAT_HTTP_BASE_URL = "http://35.172.182.0:6000";
+const CHAT_WS_BASE_URL   = "ws://35.172.182.0:6000";
 
 export async function fetchConversationHistory(
   conversationId: string,

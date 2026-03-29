@@ -120,7 +120,7 @@ export default function ChatBotPage() {
       setMessages((prev) => [...prev, assistantMessage]);
 
       if (data.end === true) {
-        const reportResponse = await fetch("http://44.223.29.123:8000/report", {
+        const reportResponse = await fetch("http://35.172.182.0:8000/report", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

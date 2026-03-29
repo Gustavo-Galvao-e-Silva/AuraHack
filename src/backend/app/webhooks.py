@@ -45,12 +45,23 @@ def _clerk_full_name(data: dict) -> str:
     return "User"
 
 
+def _clerk_role(data: dict) -> str | None:
+    unsafe_metadata = data.get("unsafe_metadata") or {}
+    role = unsafe_metadata.get("role")
+
+    if role is None:
+        return None
+
+    return str(role).strip()
+
+
 def _user_fields_from_clerk(data: dict) -> dict:
     return {
         "clerk_user_id": data["id"],
         "email": _clerk_primary_email(data),
         "phone_number": _clerk_primary_phone(data),
         "full_name": _clerk_full_name(data),
+        "role": _clerk_role(data),
     }
 
 
@@ -66,6 +77,7 @@ def _sync_user_from_clerk(db: Session, data: dict) -> tuple[User, bool]:
         user.email = fields["email"]
         user.phone_number = fields["phone_number"]
         user.full_name = fields["full_name"]
+        user.role = fields["role"]
         db.commit()
         db.refresh(user)
         return user, False
@@ -75,11 +87,30 @@ def _sync_user_from_clerk(db: Session, data: dict) -> tuple[User, bool]:
         email=fields["email"],
         phone_number=fields["phone_number"],
         full_name=fields["full_name"],
+        role=fields["role"],
     )
     db.add(user)
     db.commit()
     db.refresh(user)
     return user, True
+
+
+def _delete_user_from_clerk(db: Session, data: dict) -> bool:
+    clerk_user_id = data.get("id")
+    if not clerk_user_id:
+        return False
+
+    user = db.execute(
+        select(User).where(User.clerk_user_id == clerk_user_id)
+    ).scalar_one_or_none()
+
+    if not user:
+        return False
+
+    db.delete(user)
+    db.commit()
+    return True
+
 
 @router.post("/clerk")
 async def clerk_webhook(request: Request, db: Session = Depends(get_db)):
@@ -136,3 +167,16 @@ async def clerk_webhook(request: Request, db: Session = Depends(get_db)):
             "message": "User created" if created else "User updated",
             "user_id": user.id,
         }
+
+    if event_type == "user.deleted":
+        deleted = _delete_user_from_clerk(db, data)
+
+        return {
+            "status": "ok",
+            "message": "User deleted" if deleted else "User not found",
+        }
+
+    return {
+        "status": "ok",
+        "message": f"Ignored event type: {event_type}",
+    }

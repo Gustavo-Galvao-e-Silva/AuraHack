@@ -18,6 +18,9 @@ from app.api.matching import router as matching_router
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+import app.models
+Base.metadata.create_all(bind=engine)
+
 app = FastAPI()
 
 origins = [
@@ -47,7 +50,3 @@ def list_routes():
 @app.get("/")
 def root():
     return {"message": "API is running"}
-
-@app.get("/routes")
-def list_routes():
-    return [route.path for route in app.routes]

@@ -1,149 +1,29 @@
 from datetime import date, datetime
 from pydantic import BaseModel, EmailStr, ConfigDict
-from app.database import engine, Base
-import app.models
 
-Base.metadata.create_all(bind=engine)
+# --- SCHEMAS DE USUÁRIO (Unificado) ---
 
-class PaperCreate(BaseModel):
-    title: str
-    abstract: str | None = None
-    doi: str | None = None
-
-
-class PaperOut(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-
-    id: int
-    title: str
-    abstract: str | None
-    doi: str | None
-
-
-class ResearchPaperCreate(BaseModel):
-    researcher_id: int
-    title: str
-    abstract: str | None = None
-    journal: str | None = None
-    doi: str | None = None
-    url: str | None = None
-    published_at: date | None = None
-
-
-class ResearchPaperOut(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-
-    id: int
-    researcher_id: int
-    title: str
-    abstract: str | None
-    journal: str | None
-    doi: str | None
-    url: str | None
-    published_at: date | None
-    created_at: datetime
-
-
-# --- Clinical trial (NCT) payload — must match pipeline JSON exactly ---
-
-
-class StudyIntervention(BaseModel):
-    model_config = ConfigDict(extra="forbid")
-
-    type: str
-    name: str
-
-
-class StudyEligibility(BaseModel):
-    model_config = ConfigDict(extra="forbid")
-
-    criteria_raw: str
-    min_age: float
-    max_age: float
-    sex: str
-    healthy_volunteers: bool
-    inclusion_criteria: list[str]
-    exclusion_criteria: list[str]
-
-
-class StudyLocation(BaseModel):
-    model_config = ConfigDict(extra="forbid")
-
-    facility: str
-    city: str
-    state: str | None
-    country: str
-    lat: float
-    lon: float
-
-
-class ResearchStudyCreate(BaseModel):
-    """Request body shape for ingesting a trial record (e.g. ClinicalTrials.gov-style)."""
-
-    model_config = ConfigDict(extra="forbid")
-
-    nct_id: str
-    brief_title: str
-    official_title: str
-    status: str
-    start_date: date
-    completion_date: date
-    phase: list[str]
-    study_type: str
-    conditions: list[str]
-    conditions_normalized: list[str]
-    interventions: list[StudyIntervention]
-    intervention_names: list[str]
-    brief_summary: str
-    eligibility: StudyEligibility
-    locations: list[StudyLocation]
-    countries: list[str]
-    sponsor: str
-    search_text: str | None = None
-
-
-class ResearchStudyOut(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-
-    id: int
-    researcher_id: int | None
-    nct_id: str
-    brief_title: str
-    official_title: str | None
-    status: str | None
-    start_date: date | None
-    completion_date: date | None
-    study_type: str | None
-    phase: list[str]
-    conditions: list[str]
-    conditions_normalized: list[str]
-    interventions: list[StudyIntervention]
-    intervention_names: list[str]
-    brief_summary: str | None
-    eligibility: StudyEligibility | None
-    locations: list[StudyLocation]
-    countries: list[str]
-    sponsor: str | None
-    search_text: str | None
-    created_at: datetime
-
-
-class ResearcherCreate(BaseModel):
-    clerk_user_id: str
-    orcid_id: str | None = None
-    full_name: str
+class UserBase(BaseModel):
     email: EmailStr | None = None
+    full_name: str
+    role: str
+    institution: str | None = None
+    location: str | None = None
+    bio: str | None = None
 
+class UserCreate(UserBase):
+    clerk_user_id: str
 
-class ResearcherOut(BaseModel):
+class UserOut(UserBase):
     model_config = ConfigDict(from_attributes=True)
-
+    
     id: int
     clerk_user_id: str
-    orcid_id: str | None
-    full_name: str
-    email: str | None
+    patient_data: dict | None = None
+    role_metadata: dict | None = None
+    created_at: datetime
 
+# --- SCHEMAS DE PATIENT STATUS (Para o POST de saúde) ---
 
 class StudyMatchOut(BaseModel):
     study: "ResearchStudyOut"
@@ -168,20 +48,50 @@ class PatientStatusCreate(BaseModel):
     drugs: list[str] = []
     symptoms: list[str] = []
 
+# --- CLINICAL TRIAL SCHEMAS (NCT) ---
 
-class PatientStatusOut(BaseModel):
+class StudyIntervention(BaseModel):
+    type: str
+    name: str
+
+class StudyEligibility(BaseModel):
+    criteria_raw: str
+    min_age: float | str | None # ClinicalTrials às vezes manda string "18 Years"
+    max_age: float | str | None
+    sex: str
+    healthy_volunteers: bool | str | None
+    inclusion_criteria: list[str] | None = None
+    exclusion_criteria: list[str] | None = None
+
+class StudyLocation(BaseModel):
+    facility: str | None = None
+    city: str | None = None
+    state: str | None = None
+    country: str | None = None
+    lat: float | None = None
+    lon: float | None = None
+
+class ResearchStudyOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     id: int
-    user_id: int
-    sex: str | None
-    location: str | None
-    age: int | None
-    description: str | None
-    history: str | None
-    medical_notes: str | None
-    medical_summary: str | None
-    conditions: list[str]
-    drugs: list[str]
-    symptoms: list[str]
+    researcher_id: int | None
+    nct_id: str
+    brief_title: str
+    official_title: str | None
+    status: str | None
+    start_date: date | None = None
+    completion_date: date | None = None
+    study_type: str | None = None
+    phase: list[str] = []
+    conditions: list[str] = []
+    conditions_normalized: list[str] = []
+    interventions: list[dict] = []
+    intervention_names: list[str] = []
+    brief_summary: str | None
+    eligibility: dict | None
+    locations: list[dict] = []
+    countries: list[str] = []
+    sponsor: str | None
+    study_summary: str | None
     created_at: datetime

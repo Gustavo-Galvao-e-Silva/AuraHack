@@ -10,7 +10,7 @@ import { Footer } from "../components/landing/Footer";
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen flex flex-col overflow-hidden cursor-none">
+    <div className="min-h-screen flex flex-col overflow-hidden">
       <ScrollProgress />
       <AnimatedBackground />
       <Header />

@@ -46,14 +46,6 @@ html {
   scroll-behavior: smooth;
 }
 
-html, body {
-  cursor: none !important;
-}
-
-a, button {
-  cursor: none !important;
-}
-
 /* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 10px;

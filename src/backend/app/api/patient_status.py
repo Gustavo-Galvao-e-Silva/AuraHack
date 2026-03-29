@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 from app.database import get_db
-from app.models import User
-# Importe o schema de saída do User ou mantenha o PatientStatusOut se ele bater com os campos
-from app.schemas import PatientStatusCreate, UserOut 
+from app.models import User, PatientStatus
+from app.schemas import PatientStatusCreate, UserOut
 
 router = APIRouter(prefix="/patient-status", tags=["patient-statuses"])
 
@@ -19,9 +19,9 @@ def update_patient_medical_info(
 
     # 2. Atualizar os campos principais que agora estão no User
     user.location = payload.location
-    user.bio = payload.description # Usando bio como o 'description' geral
+    user.bio = payload.description
 
-    # 3. Organizar os dados médicos dentro do JSONB 'patient_data'
+    # 3. Manter patient_data JSONB no User para serialização rápida
     user.patient_data = {
         "sex": payload.sex,
         "age": payload.age,
@@ -32,6 +32,26 @@ def update_patient_medical_info(
         "drugs": payload.drugs,
         "symptoms": payload.symptoms,
     }
+
+    # 4. Upsert PatientStatus para o motor de matching (filtros e vetor)
+    patient_status = db.execute(
+        select(PatientStatus).where(PatientStatus.user_id == payload.user_id)
+    ).scalars().first()
+
+    if patient_status is None:
+        patient_status = PatientStatus(user_id=payload.user_id)
+        db.add(patient_status)
+
+    patient_status.age = payload.age
+    patient_status.sex = payload.sex
+    patient_status.location = payload.location
+    patient_status.description = payload.description
+    patient_status.history = payload.history
+    patient_status.medical_notes = payload.medical_notes
+    patient_status.medical_summary = payload.medical_summary
+    patient_status.conditions = payload.conditions
+    patient_status.drugs = payload.drugs
+    patient_status.symptoms = payload.symptoms
 
     db.commit()
     db.refresh(user)

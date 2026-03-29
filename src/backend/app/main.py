@@ -14,6 +14,7 @@ from app.api.research import router as research_router
 from app.api.chatbot import router as chatbot_router
 from app.api.chat import router as chat_router
 from app.api.matching import router as matching_router
+from app.api.user import router as user_router
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -37,6 +38,7 @@ app.add_middleware(
 )
 
 app.include_router(webhook_router)
+app.include_router(user_router)
 app.include_router(patient_status_router)
 app.include_router(research_router)
 app.include_router(chatbot_router)

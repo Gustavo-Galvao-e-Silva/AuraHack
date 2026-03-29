@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useUser } from "@clerk/clerk-react";
 
 type Message = {
   id: number;
@@ -27,8 +28,15 @@ type ChatApiResponse = {
   end?: boolean;
 };
 
+type ReportResponse = {
+  response?: string;
+  message?: string;
+  report?: string;
+};
+
 export default function ChatBotPage() {
   const navigate = useNavigate();
+  const { user } = useUser();
 
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -56,6 +64,7 @@ export default function ChatBotPage() {
     last_doctor_message: "",
   });
 
+  const [userStatus, setUserStatus] = useState("");
   const [input, setInput] = useState("");
   const [isSending, setIsSending] = useState(false);
 
@@ -76,6 +85,11 @@ export default function ChatBotPage() {
     setIsSending(true);
 
     try {
+      const nextState: ChatState = {
+        ...chatState,
+        last_patient_message: trimmedInput,
+      };
+
       const response = await fetch(
         "http://localhost:8000/chatbot/post_patient_message",
         {
@@ -84,10 +98,7 @@ export default function ChatBotPage() {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            state: {
-              ...chatState,
-              last_patient_message: trimmedInput,
-            },
+            state: nextState,
             message: trimmedInput,
           }),
         }
@@ -99,9 +110,8 @@ export default function ChatBotPage() {
 
       const data: ChatApiResponse = await response.json();
 
-      if (data.state) {
-        setChatState(data.state);
-      }
+      const updatedState = data.state ?? nextState;
+      setChatState(updatedState);
 
       const assistantText =
         data.response ||
@@ -117,7 +127,67 @@ export default function ChatBotPage() {
       setMessages((prev) => [...prev, assistantMessage]);
 
       if (data.end === true) {
-        navigate("/patient");
+        const reportResponse = await fetch("http://44.223.29.123:8000/report", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            state: updatedState,
+          }),
+        });
+
+        if (!reportResponse.ok) {
+          throw new Error("Failed to generate report.");
+        }
+
+        const reportData: ReportResponse = await reportResponse.json();
+
+        const finalUserStatus =
+          reportData.message ||
+          reportData.response ||
+          reportData.report ||
+          "Report generated, but no status message was returned.";
+
+        setUserStatus(finalUserStatus);
+
+        if (!user?.id) {
+          throw new Error("Missing Clerk user ID.");
+        }
+
+        const patientStatusResponse = await fetch(
+          "http://localhost:8000/patient-status/",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              clerk_user_id: user.id,
+              age: null,
+              sex: null,
+              location: null,
+              description: finalUserStatus,
+              history: updatedState.last_patient_message,
+              medical_notes: "",
+              medical_summary: updatedState.patient_summary.findings_summary,
+              conditions: [],
+              drugs: [],
+              symptoms: [],
+            }),
+          }
+        );
+
+        if (!patientStatusResponse.ok) {
+          throw new Error("Failed to save patient status.");
+        }
+
+        navigate("/patient", {
+          state: {
+            userStatus: finalUserStatus,
+          },
+        });
+
         return;
       }
     } catch (error) {
@@ -159,6 +229,11 @@ export default function ChatBotPage() {
           <p className="mt-1 text-sm text-[#296870]/70">
             Ask questions and get answers in one clean conversation view.
           </p>
+          {userStatus ? (
+            <p className="mt-3 text-sm text-[#0A7F8A]">
+              Latest status: {userStatus}
+            </p>
+          ) : null}
         </div>
 
         <div className="flex-1 overflow-hidden rounded-3xl border border-[#2FCED6]/30 bg-white shadow-xl">

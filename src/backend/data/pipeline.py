@@ -164,27 +164,7 @@ def _normalise(s: str) -> str:
     return re.sub(r"\s+", " ", re.sub(r"[^\w\s]", " ", s.lower())).strip()
 
 
-def _build_search_text(study: dict, inclusion: list[str], exclusion: list[str]) -> str:
-    parts = []
-    if study.get("brief_title"):
-        parts.append(study["brief_title"])
-    if study.get("official_title") and study["official_title"] != study.get("brief_title"):
-        parts.append(study["official_title"])
-    if study.get("conditions"):
-        parts.append("Conditions: " + ", ".join(study["conditions"]))
-    intervention_names = [i.get("name") for i in study.get("interventions", []) if i.get("name")]
-    if intervention_names:
-        parts.append("Interventions: " + ", ".join(intervention_names))
-    if study.get("brief_summary"):
-        parts.append(study["brief_summary"])
-    if inclusion:
-        parts.append("Inclusion criteria: " + "; ".join(inclusion))
-    if exclusion:
-        parts.append("Exclusion criteria: " + "; ".join(exclusion))
-    return "\n\n".join(parts)
-
-
-def _build_study_summary(
+def _build_search_text(
     study: dict,
     min_age: float,
     max_age: float,
@@ -281,8 +261,7 @@ def _clean(raw: dict) -> dict:
         "locations":    locations,
         "countries":    countries,
         "sponsor":      raw.get("sponsor"),
-        "search_text":  _build_search_text(raw, inclusion, exclusion),
-        "study_summary": _build_study_summary(raw, min_age, max_age, sex, inclusion, exclusion, countries),
+        "search_text":  _build_search_text(raw, min_age, max_age, sex, inclusion, exclusion, countries),
     }
 
 
@@ -323,7 +302,7 @@ def build_pipeline(
     studies = [_clean(s) for s in raw_studies]
 
     embedder = get_embedder(embedding_provider)
-    texts = [s["study_summary"] for s in studies]
+    texts = [s["search_text"] for s in studies]
     embeddings = embedder.embed(texts)
     for study, embedding in zip(studies, embeddings):
         study["embedding"] = embedding

@@ -2,6 +2,8 @@ from google.adk.agents import LlmAgent
 from schemas import *
 from prompts import load_prompt, Prompt
 
+CHECKER_POOL_SIZE = 4
+
 doctor = LlmAgent(
     name="doctor",
     model="gemini-2.5-flash",
@@ -21,6 +23,17 @@ checker_agent = LlmAgent(
     instruction=load_prompt(Prompt.Checker),
     output_schema=GoalCheck,
 )
+
+# Pool of checker agents for parallel goal checking
+checker_pool: list[LlmAgent] = [checker_agent] + [
+    LlmAgent(
+        name=f"checker_{i}",
+        model="gemini-2.5-flash",
+        instruction=load_prompt(Prompt.Checker),
+        output_schema=GoalCheck,
+    )
+    for i in range(1, CHECKER_POOL_SIZE)
+]
 
 task_factory = LlmAgent(
     name="factory",

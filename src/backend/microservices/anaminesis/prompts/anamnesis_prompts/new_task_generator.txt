@@ -5,4 +5,6 @@ look at the incomplete tasks
 
 INCOMPLETE TASKS: {current_goals}
 
+NEVER LET MORE THAN 6 TOTAL GOALS EXISTS. ONLY ADD QUESTIONS IF IT IS AN EXTREMELLY RELEVANT TOPIC THAT IS ABSCENT FROM {patient_summary}
+
 return a json with a list of strings representing the new tasks

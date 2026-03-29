@@ -15,6 +15,7 @@ import json
 load_dotenv()
 
 APP_NAME = "anamnesis_app"
+MAX_DEPTH = 2  # Maximum number of conversation turns
 
 app = FastAPI()
 
@@ -45,6 +46,7 @@ class Ctx(BaseModel):
     complete: bool = False
     report: dict | None = None
     state: dict | None = None
+    depth: int = 0
 
 
 # --- Helpers ---
@@ -160,6 +162,16 @@ async def send_message(ctx: Ctx):
     if not ctx.message:
         raise HTTPException(status_code=400, detail="`message` is required in ctx.")
 
+    print(f"[DEPTH] Current depth: {ctx.depth}/{MAX_DEPTH}")
+
+    if ctx.depth >= MAX_DEPTH:
+        return ctx.model_copy(update={
+            "reply": "We have covered everything we need. Please proceed to generate your report.",
+            "complete": True,
+            "message": None,
+            "goals": [],
+        })
+
     events = await _run_ephemeral(
         agent=anamnesis_agent,
         state=_build_session_state(ctx),
@@ -179,23 +191,24 @@ async def send_message(ctx: Ctx):
     if not reply_text and len(updated_goals) == 0:
         reply_text = "Anamnesis complete. All goals have been addressed."
 
+    new_depth = ctx.depth + 1
     return ctx.model_copy(update={
         "goals": updated_goals,
         "reply": reply_text,
         "complete": len(updated_goals) == 0,
         "message": None,
+        "depth": new_depth,
         "state": {
             **final_state,
             "last_patient_message": ctx.message,
             "last_doctor_message": reply_text,
+            "depth": new_depth,
         },
     })
 
 
 @app.post("/report")
 async def generate_report(ctx: Ctx):
-    if (not ctx.state):
-        ctx = {"state":ctx}
 
     events = await _run_ephemeral(
         agent=report_agent,
@@ -256,6 +269,7 @@ class ChatbotResponse(BaseModel):
     state: dict
     response: str
     end: bool
+    depth: int
 
 
 @app.post("/chatbot/post_patient_message", response_model=ChatbotResponse)
@@ -264,6 +278,7 @@ async def post_patient_message(req: ChatbotRequest):
         goals=req.state.get("current_goals", Ctx().goals) if req.state else Ctx().goals,
         message=req.message,
         state=req.state,
+        depth=req.state.get("depth", 0) if req.state else 0,
     )
 
     result = await send_message(ctx)
@@ -272,6 +287,7 @@ async def post_patient_message(req: ChatbotRequest):
         state=result.state,
         response=result.reply or "",
         end=result.complete,
+        depth=result.depth,
     )
 
 

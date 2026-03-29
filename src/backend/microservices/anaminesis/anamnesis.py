@@ -1,13 +1,74 @@
 import json
 import copy
+import asyncio
 from google.adk.agents import BaseAgent
 from google.adk.agents.invocation_context import InvocationContext
+from google.adk.runners import Runner
+from google.adk.sessions import InMemorySessionService
 from google.genai import types
-from agents import doctor, summarizer, checker_agent, task_factory
+from agents import doctor, summarizer, checker_agent, checker_pool, task_factory
 from schemas import GoalCheck, NewTasks, PatientSummary
+
+APP_NAME = "anamnesis_app"
 
 # Global state — single user at a time, no race conditions
 current_state: dict = {}
+
+
+async def _run_checker(agent, goal: str, session_state: dict, index: int) -> tuple[int, bool]:
+    """Run a single checker agent for one goal in its own ephemeral session."""
+    session_service = InMemorySessionService()
+    user_id = f"checker_user_{index}"
+    session_id = f"checker_session_{index}"
+
+    # Build a minimal state for the checker
+    state = {**session_state, "goal": goal}
+
+    await session_service.create_session(
+        app_name=APP_NAME,
+        user_id=user_id,
+        session_id=session_id,
+        state=state,
+    )
+
+    runner = Runner(
+        agent=agent,
+        app_name=APP_NAME,
+        session_service=session_service,
+    )
+
+    events = [
+        event async for event in runner.run_async(
+            user_id=user_id,
+            session_id=session_id,
+            new_message=types.Content(
+                role="user",
+                parts=[types.Part(text=f"Check goal: {goal}")],
+            ),
+        )
+    ]
+
+    await session_service.delete_session(
+        app_name=APP_NAME,
+        user_id=user_id,
+        session_id=session_id,
+    )
+
+    satisfied = False
+    for event in reversed(events):
+        if event.content and event.content.parts:
+            for part in event.content.parts:
+                if part.text:
+                    try:
+                        check = GoalCheck(**json.loads(part.text.strip()))
+                        satisfied = check.satisfied
+                        break
+                    except Exception:
+                        continue
+        if satisfied is not False:
+            break
+
+    return index, satisfied
 
 
 class AnamnesisAgent(BaseAgent):
@@ -43,29 +104,30 @@ class AnamnesisAgent(BaseAgent):
 
             print(f"[DEBUG] Summary: {ctx.session.state.get('patient_summary')}")
 
-            # --- Step 3: Checker ---
-            remove = []
-            for goal in ctx.session.state["current_goals"]:
-                ctx.session.state["goal"] = goal
-                events = [event async for event in checker_agent.run_async(ctx)]
-                satisfied = False
-                for event in reversed(events):
-                    if event.content and event.content.parts:
-                        for part in event.content.parts:
-                            if part.text:
-                                try:
-                                    check = GoalCheck(**json.loads(part.text.strip()))
-                                    satisfied = check.satisfied
-                                    break
-                                except Exception:
-                                    continue
-                    if satisfied is not False:
-                        break
-                remove.append(satisfied)
+            # --- Step 3: Parallel Checker ---
+            goals = ctx.session.state["current_goals"]
+            n = len(checker_pool)
+
+            # Assign each goal to a checker in round-robin: goal i -> checker_pool[i % n]
+            tasks = [
+                _run_checker(
+                    agent=checker_pool[i % n],
+                    goal=goal,
+                    session_state=dict(ctx.session.state),
+                    index=i,
+                )
+                for i, goal in enumerate(goals)
+            ]
+
+            results = await asyncio.gather(*tasks)
+
+            # results is [(index, satisfied), ...] — sort by index to preserve order
+            results.sort(key=lambda x: x[0])
+            satisfied_flags = [satisfied for _, satisfied in results]
 
             items_removed = 0
-            for i, complete in enumerate(remove):
-                if complete is True:
+            for i, satisfied in enumerate(satisfied_flags):
+                if satisfied is True:
                     ctx.session.state["current_goals"].pop(i - items_removed)
                     items_removed += 1
 
@@ -89,8 +151,6 @@ class AnamnesisAgent(BaseAgent):
                             last_doctor_text = part.text
             ctx.session.state["last_doctor_message"] = last_doctor_text
             ctx.session.state["awaiting_patient"] = True
-        # No yield for completion — just let the function end naturally,
-        # api.py detects completion via empty current_goals in current_state
 
         # --- Final: build complete snapshot of all fields and assign to global ---
         patient_summary = ctx.session.state.get("patient_summary")

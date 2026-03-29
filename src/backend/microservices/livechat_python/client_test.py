@@ -5,7 +5,7 @@ import threading
 import requests
 import websockets
 
-HOST     = "44.223.29.123"
+HOST     = "35.172.182.0"
 PORT     = 6000
 HTTP_URL = f"http://{HOST}:{PORT}"
 WS_URL   = f"ws://{HOST}:{PORT}"

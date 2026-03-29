@@ -6,7 +6,7 @@ import httpx
 
 router = APIRouter(prefix="/chatbot", tags=["chatbot"])
 
-UPSTREAM_CHATBOT_URL = "http://44.223.29.123:8000/chatbot/post_patient_message"
+UPSTREAM_CHATBOT_URL = "http://35.172.182.0:8000/chatbot/post_patient_message"
 
 
 class ChatRequest(BaseModel):

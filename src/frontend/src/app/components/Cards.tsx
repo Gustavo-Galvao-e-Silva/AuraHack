@@ -152,7 +152,7 @@ export function ProcessStep({ step, title, description, delay = 0, isLast = fals
       >
         {/* Step number */}
         <motion.div
-          className="relative flex-shrink-0"
+          className="relative shrink-0"
           whileHover={{ scale: 1.1, rotate: 360 }}
           transition={{ duration: 0.6 }}
         >
@@ -166,7 +166,7 @@ export function ProcessStep({ step, title, description, delay = 0, isLast = fals
               whileInView={{ height: "100%" }}
               viewport={{ once: true }}
               transition={{ duration: 0.8, delay: delay + 0.3 }}
-              className="absolute left-1/2 top-16 w-0.5 h-full -translate-x-1/2 bg-gradient-to-b from-primary to-transparent"
+              className="absolute left-1/2 top-16 w-0.5 h-full -translate-x-1/2 bg-linear-to-b from-primary to-transparent"
             />
           )}
         </motion.div>
@@ -195,7 +195,7 @@ export function Badge({ icon: Icon, text, delay = 0 }: BadgeProps) {
       viewport={{ once: true }}
       transition={{ duration: 0.5, delay, type: "spring", stiffness: 200 }}
       whileHover={{ scale: 1.1, rotate: [0, -5, 5, 0] }}
-      className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-primary/10 to-secondary/10 border border-primary/20 backdrop-blur-sm"
+      className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-linear-to-r from-primary/10 to-secondary/10 border border-primary/20 backdrop-blur-sm"
     >
       <Icon className="w-4 h-4 text-primary" />
       <span className="text-sm font-semibold text-primary">{text}</span>

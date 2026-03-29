@@ -31,7 +31,7 @@ export function LoadingScreen({ onComplete, duration = 2000 }: LoadingScreenProp
     <motion.div
       initial={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-background"
+      className="fixed inset-0 z-100 flex items-center justify-center bg-background"
     >
       <div className="text-center space-y-8">
         {/* Logo with pulse animation */}
@@ -54,7 +54,7 @@ export function LoadingScreen({ onComplete, duration = 2000 }: LoadingScreenProp
           }}
           className="relative"
         >
-          <div className="w-24 h-24 mx-auto rounded-2xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center shadow-2xl">
+          <div className="w-24 h-24 mx-auto rounded-2xl bg-linear-to-br from-primary to-secondary flex items-center justify-center shadow-2xl">
             <FlaskConical className="w-12 h-12 text-primary-foreground" />
           </div>
           
@@ -81,7 +81,7 @@ export function LoadingScreen({ onComplete, duration = 2000 }: LoadingScreenProp
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
         >
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+          <h1 className="text-3xl font-bold bg-linear-to-r from-primary to-secondary bg-clip-text text-transparent">
             TrialMatch
           </h1>
           <p className="text-muted-foreground mt-2">Loading your experience...</p>
@@ -91,7 +91,7 @@ export function LoadingScreen({ onComplete, duration = 2000 }: LoadingScreenProp
         <div className="w-64 mx-auto">
           <div className="h-2 bg-muted rounded-full overflow-hidden">
             <motion.div
-              className="h-full bg-gradient-to-r from-primary to-secondary"
+              className="h-full bg-linear-to-r from-primary to-secondary"
               initial={{ width: 0 }}
               animate={{ width: `${progress}%` }}
               transition={{ duration: 0.3 }}
@@ -137,7 +137,7 @@ export function SplashScreen({ onComplete }: SplashScreenProps) {
       initial={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.5 }}
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-gradient-to-br from-primary via-secondary to-accent"
+      className="fixed inset-0 z-100 flex items-center justify-center bg-linear-to-br from-primary via-secondary to-accent"
     >
       <motion.div
         initial={{ scale: 0.5, opacity: 0 }}
@@ -218,7 +218,7 @@ export function SkeletonLoader({ count = 1, className = "" }: SkeletonLoaderProp
           className={`bg-muted rounded-lg overflow-hidden ${className}`}
         >
           <motion.div
-            className="h-full w-full bg-gradient-to-r from-transparent via-white/10 to-transparent"
+            className="h-full w-full bg-linear-to-r from-transparent via-white/10 to-transparent"
             animate={{ x: ["-100%", "100%"] }}
             transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
           />

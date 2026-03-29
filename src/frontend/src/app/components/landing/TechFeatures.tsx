@@ -1,4 +1,3 @@
-
 import { Sparkles, Zap, Shield, Database, MessageSquare, TrendingUp } from "lucide-react";
 import { motion } from "motion/react";
 

@@ -25,14 +25,15 @@ export type ChatSocketEvent =
       message: string;
     };
 
-const CHAT_HTTP_BASE_URL = "http://44.223.29.123:8000";
-const CHAT_WS_BASE_URL = "ws://44.223.29.123:8000";
+const CHAT_HTTP_BASE_URL = "http://44.223.29.123:6000";
+const CHAT_WS_BASE_URL   = "ws://44.223.29.123:6000";
 
 export async function fetchConversationHistory(
-  conversationId: string
+  conversationId: string,
+  perspective: string
 ): Promise<ConversationHistoryResponse> {
   const response = await fetch(
-    `${CHAT_HTTP_BASE_URL}/chat/history/${encodeURIComponent(conversationId)}`,
+    `${CHAT_HTTP_BASE_URL}/chat/history/${encodeURIComponent(conversationId)}?perspective=${encodeURIComponent(perspective)}`,
     {
       method: "GET",
       headers: {
@@ -40,16 +41,15 @@ export async function fetchConversationHistory(
       },
     }
   );
-
   if (!response.ok) {
     throw new Error("Failed to fetch conversation history.");
   }
-
   return response.json();
 }
 
 export function createConversationSocket(
   conversationId: string,
+  email: string,
   handlers?: {
     onOpen?: () => void;
     onClose?: () => void;
@@ -62,6 +62,9 @@ export function createConversationSocket(
   );
 
   socket.onopen = () => {
+    // Complete the identity handshake as soon as the socket opens.
+    // The server sends an "identify" challenge first — we respond immediately.
+    socket.send(JSON.stringify({ type: "identify", email }));
     handlers?.onOpen?.();
   };
 
@@ -76,6 +79,14 @@ export function createConversationSocket(
   socket.onmessage = (event) => {
     try {
       const parsed = JSON.parse(event.data) as ChatSocketEvent;
+      // Skip the identify challenge and connection_established internally —
+      // only surface new_message and error to the caller.
+      if (
+        (parsed as any).type === "identify" ||
+        parsed.type === "connection_established"
+      ) {
+        return;
+      }
       handlers?.onMessage?.(parsed);
     } catch (error) {
       console.error("Failed to parse websocket message:", error);
@@ -88,13 +99,11 @@ export function createConversationSocket(
 export function sendSocketMessage(
   socket: WebSocket,
   payload: {
-    role: "self" | "other";
     content: string;
   }
 ) {
   if (socket.readyState !== WebSocket.OPEN) {
     throw new Error("WebSocket is not open.");
   }
-
   socket.send(JSON.stringify(payload));
 }

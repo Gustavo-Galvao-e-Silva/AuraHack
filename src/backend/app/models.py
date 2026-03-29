@@ -7,6 +7,8 @@ from pgvector.sqlalchemy import Vector
 
 from .database import Base
 
+EMBEDDING_DIM = 384  # all-MiniLM-L6-v2 (local); switch to 1536 for OpenAI text-embedding-3-small
+
 
 class Patient(Base):
     __tablename__ = "patients"
@@ -126,7 +128,7 @@ class PatientStatus(Base):
     symptoms: Mapped[list[str]] = mapped_column(JSONB, default=list)
 
     patient_vector_summary: Mapped[list[float] | None] = mapped_column(
-        Vector(1536),
+        Vector(EMBEDDING_DIM),
         nullable=True,
     )
 
